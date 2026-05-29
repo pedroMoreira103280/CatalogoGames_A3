@@ -25,6 +25,8 @@
         <div class="form-container">
             <h2 style="color: var(--accent-color); text-align: center; margin-bottom: 2rem;">Acesso Restrito</h2>
             
+            <div id="login-error" style="display: none; background-color: #ff4757; color: white; padding: 0.8rem; border-radius: 4px; margin-bottom: 1rem; text-align: center;"></div>
+            
             <form id="login-form" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label for="email">E-mail</label>
@@ -45,18 +47,5 @@
     </footer>
 
     <script src="js/script.js"></script>
-    <script>
-        // Lógica simples apenas para simular o login
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if(email && password) {
-                // Redireciona para o painel de admin
-                window.location.href = 'admin.html';
-            }
-        }
-    </script>
 </body>
 </html>

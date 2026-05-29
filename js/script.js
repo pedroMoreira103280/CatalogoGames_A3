@@ -1,17 +1,17 @@
 /* ===========================
-   BASE DE DADOS DOS GAMES
+   BASE DE DADOS INICIAL DOS GAMES E USUÁRIOS
    =========================== */
 
-const games = [
+const initialGames = [
     {
         id: 1,
         title: "Elden Ring",
         genre: "Ação/RPG",
         year: 2022,
         rating: 9.3,
-        description: "Um épico mundo aberto criado em colaboração entre FromSoftware e George R. R. Martin. Explore um reino vasto repleto de mistérios, desafios épicos e inimigos memoráveis. Prepare-se para uma jornada desafiadora que testará seus limites.",
-        details: "Desenvolvido pela renomada FromSoftware, criadores da série Dark Souls, Elden Ring traz a fórmula desafiadora para um mundo aberto. Com gráficos impressionantes, combate tático e uma narrativa profunda criada com o autor George R. R. Martin, é considerado uma obra-prima do gênero.",
-        platforms: ["PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X/S", "PC"],
+        description: "Um épico mundo aberto criado em colaboração entre FromSoftware e George R. R. Martin.",
+        details: "Desenvolvido pela renomada FromSoftware, criadores da série Dark Souls, Elden Ring traz a fórmula desafiadora para um mundo aberto.",
+        platforms: ["PlayStation 4", "PlayStation 5", "Xbox One", "PC"],
         features: ["Mundo aberto", "Multijogador", "Boss épicos", "Customização profunda"]
     },
     {
@@ -20,8 +20,8 @@ const games = [
         genre: "Aventura/Ação",
         year: 2017,
         rating: 9.7,
-        description: "Explore um vasto reino com liberdade total. Escale montanhas, resolva enigmas e enfrente inimigos em um jogo que redefiniu o gênero de aventuras. Uma experiência única no Nintendo Switch.",
-        details: "Um divisor de águas na indústria dos games, Breath of the Wild oferece uma liberdade sem precedentes. Sem estrutura linear obrigatória, você pode explorar o mundo na ordem que desejar, resolvendo problemas criativos e descobrindo segredos em cada canto.",
+        description: "Explore um vasto reino com liberdade total.",
+        details: "Um divisor de águas na indústria dos games, Breath of the Wild oferece uma liberdade sem precedentes.",
         platforms: ["Nintendo Switch", "Wii U"],
         features: ["Exploração livre", "Criatividade em combate", "Enigmas únicos", "Física interativa"]
     },
@@ -31,26 +31,153 @@ const games = [
         genre: "RPG/Ficção Científica",
         year: 2020,
         rating: 8.5,
-        description: "Imerja-se em Night City, um futuro distópico repleto de ação, romance e decisões que importam. Crie seu personagem e viva uma história épica em um mundo aberto gigantesco.",
-        details: "CD Projekt Red apresenta um RPG ambicioso em um mundo ciberpunk densamente construído. Com um enredo envolvente, personagens memoráveis e um sistema de escolhas que afetam a narrativa, Cyberpunk 2077 oferece dezenas de horas de gameplay variado.",
-        platforms: ["PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X/S", "PC"],
+        description: "Imerja-se em Night City, um futuro distópico.",
+        details: "CD Projekt Red apresenta um RPG ambicioso em um mundo ciberpunk densamente construído.",
+        platforms: ["PlayStation 4", "PlayStation 5", "PC"],
         features: ["Mundo aberto gigante", "Romance e relacionamentos", "Cibernética", "Escolhas narrativas"]
     }
 ];
+
+// Inicializa dados no localStorage se não existirem
+if (!localStorage.getItem('gamesData')) {
+    localStorage.setItem('gamesData', JSON.stringify(initialGames));
+}
+
+// Obtém os games atuais do localStorage
+function getGames() {
+    return JSON.parse(localStorage.getItem('gamesData')) || [];
+}
+
+function saveGames(gamesArr) {
+    localStorage.setItem('gamesData', JSON.stringify(gamesArr));
+}
+
+/* ===========================
+   SISTEMA DE AUTENTICAÇÃO
+   =========================== */
+
+function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('login-error');
+    
+    // Reset erro
+    if(errorMsg) errorMsg.style.display = 'none';
+
+    // Validação estática
+    if (email === 'admin@gamecatalog.com' && password === 'admin123') {
+        sessionStorage.setItem('userAuth', JSON.stringify({ role: 'admin', name: 'Administrador' }));
+        window.location.href = 'admin.html';
+    } else if (email === 'user@gamecatalog.com' && password === 'user123') {
+        sessionStorage.setItem('userAuth', JSON.stringify({ role: 'user', name: 'Usuário Comum' }));
+        window.location.href = 'index.html';
+    } else {
+        if(errorMsg) {
+            errorMsg.innerText = 'E-mail ou senha incorretos.';
+            errorMsg.style.display = 'block';
+        } else {
+            alert('E-mail ou senha incorretos.');
+        }
+    }
+}
+
+function logout() {
+    sessionStorage.removeItem('userAuth');
+    window.location.href = 'index.html';
+}
+
+function getUser() {
+    const authData = sessionStorage.getItem('userAuth');
+    return authData ? JSON.parse(authData) : null;
+}
+
+// Verifica acesso em rotas protegidas
+function checkAuth() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const user = getUser();
+    
+    if (currentPage === 'admin.html') {
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+    }
+}
+
+/* ===========================
+   GERENCIAMENTO DE GAMES (ADMIN)
+   =========================== */
+
+function loadAdminTable() {
+    const tableContainer = document.getElementById('admin-table-body');
+    if (!tableContainer) return; // Não estamos na página de admin
+
+    const games = getGames();
+    let html = '';
+
+    games.forEach(game => {
+        html += `
+            <div class="admin-table-row">
+                <div class="col">${game.id}</div>
+                <div class="col">${game.title}</div>
+                <div class="col">${game.genre}</div>
+                <div class="col">
+                    <button class="btn-small btn-edit" onclick="openEditModal(${game.id})">Editar</button>
+                </div>
+            </div>
+        `;
+    });
+
+    tableContainer.innerHTML = html;
+}
+
+let currentEditId = null;
+
+function openEditModal(id) {
+    const games = getGames();
+    const game = games.find(g => g.id === id);
+    if (!game) return;
+
+    currentEditId = id;
+    document.getElementById('edit-title').value = game.title;
+    document.getElementById('edit-genre').value = game.genre;
+    
+    document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+    currentEditId = null;
+}
+
+function saveGameEdit(e) {
+    e.preventDefault();
+    if (currentEditId === null) return;
+
+    const games = getGames();
+    const index = games.findIndex(g => g.id === currentEditId);
+    
+    if (index !== -1) {
+        games[index].title = document.getElementById('edit-title').value;
+        games[index].genre = document.getElementById('edit-genre').value;
+        
+        saveGames(games);
+        loadAdminTable();
+        closeEditModal();
+        alert('Jogo atualizado com sucesso!');
+    }
+}
 
 /* ===========================
    FUNÇÃO: Carrega Detalhes do Game
    =========================== */
 
 function loadGameDetail() {
-    // Obtém o ID da URL
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = parseInt(urlParams.get('id'));
-    
-    // Encontra o game na array
+    const games = getGames();
     const game = games.find(g => g.id === gameId);
     
-    // Se game não existe, mostra erro
     if (!game) {
         document.getElementById('game-content').innerHTML = `
             <div style="text-align: center; padding: 3rem;">
@@ -62,7 +189,6 @@ function loadGameDetail() {
         return;
     }
     
-    // Monta o HTML com os detalhes do game
     const platformsList = game.platforms.join(', ');
     const featuresList = game.features.map(f => `<span style="display: inline-block; background-color: #3a3a3a; padding: 0.3rem 0.8rem; border-radius: 20px; margin-right: 0.5rem; margin-bottom: 0.5rem;">${f}</span>`).join('');
     
@@ -115,7 +241,7 @@ function loadGameDetail() {
 }
 
 /* ===========================
-   FUNÇÃO: Atualiza Link Ativo na Navegação
+   FUNÇÃO: Atualiza Link Ativo e Login Status
    =========================== */
 
 function updateActiveNav() {
@@ -130,6 +256,24 @@ function updateActiveNav() {
             link.classList.add('active');
         }
     });
+
+    // Atualiza estado do botão Login/Sair
+    const loginBtn = document.querySelector('.btn-login');
+    const user = getUser();
+    if (loginBtn) {
+        if (user) {
+            loginBtn.innerText = 'Sair';
+            loginBtn.href = '#';
+            loginBtn.onclick = (e) => {
+                e.preventDefault();
+                logout();
+            };
+        } else {
+            loginBtn.innerText = 'Login';
+            loginBtn.href = 'login.html';
+            loginBtn.onclick = null;
+        }
+    }
 }
 
 /* ===========================
@@ -137,11 +281,19 @@ function updateActiveNav() {
    =========================== */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Atualiza navegação ativa
+    checkAuth();
     updateActiveNav();
     
-    // Carrega detalhes do game se estiver na página de detalhes
     if (window.location.pathname.includes('game-detail.html')) {
         loadGameDetail();
+    }
+
+    if (window.location.pathname.includes('admin.html')) {
+        loadAdminTable();
+        // Setup Modal Events
+        const editForm = document.getElementById('edit-form');
+        if(editForm) {
+            editForm.addEventListener('submit', saveGameEdit);
+        }
     }
 });
