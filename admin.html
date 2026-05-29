@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Catálogo de Games</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navegação do Admin -->
+    <nav class="navbar" style="background-color: #111;">
+        <div class="nav-container">
+            <a href="admin.html" class="logo" style="color: #ff4757;">⚙️ Painel ADM</a>
+            <ul class="nav-links">
+                <li><a href="admin.html" class="active">Dashboard</a></li>
+                <li><a href="index.html">Ver Site</a></li>
+                <li><a href="index.html" class="btn-login" style="color: #ff4757;">Sair</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main>
+        <div class="admin-header">
+            <h2>Bem-vindo, Administrador</h2>
+            <p style="color: var(--text-secondary);">Aqui você pode gerenciar o catálogo de jogos.</p>
+        </div>
+
+        <section class="games-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="color: var(--accent-color);">Jogos Cadastrados</h3>
+                <button class="btn-details" style="background-color: #2ed573; color: #111;">+ Adicionar Jogo</button>
+            </div>
+
+            <!-- Tabela simulada com divs -->
+            <div class="admin-table">
+                <div class="admin-table-row admin-table-header">
+                    <div class="col">ID</div>
+                    <div class="col">Título</div>
+                    <div class="col">Gênero</div>
+                    <div class="col">Ações</div>
+                </div>
+                
+                <div class="admin-table-row">
+                    <div class="col">1</div>
+                    <div class="col">Elden Ring</div>
+                    <div class="col">Ação/RPG</div>
+                    <div class="col">
+                        <button class="btn-small btn-edit">Editar</button>
+                        <button class="btn-small btn-delete">Excluir</button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-row">
+                    <div class="col">2</div>
+                    <div class="col">The Legend of Zelda: Breath of the Wild</div>
+                    <div class="col">Aventura/Ação</div>
+                    <div class="col">
+                        <button class="btn-small btn-edit">Editar</button>
+                        <button class="btn-small btn-delete">Excluir</button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-row">
+                    <div class="col">3</div>
+                    <div class="col">Cyberpunk 2077</div>
+                    <div class="col">RPG/Ficção Científica</div>
+                    <div class="col">
+                        <button class="btn-small btn-edit">Editar</button>
+                        <button class="btn-small btn-delete">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 GameCatalog. Área Restrita.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Catálogo de Games</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navegação -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🎮 GameCatalog</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="news.html">Notícias</a></li>
+                <li><a href="about.html">Sobre</a></li>
+                <li><a href="login.html" class="active btn-login" style="background-color: var(--accent-color); color: var(--primary-color); padding: 0.3rem 0.8rem; font-weight: bold;">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+        <div class="form-container">
+            <h2 style="color: var(--accent-color); text-align: center; margin-bottom: 2rem;">Acesso Restrito</h2>
+            
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" class="form-control" placeholder="admin@gamecatalog.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" class="form-control" placeholder="******" required>
+                </div>
+                <button type="submit" class="btn-submit">Entrar no Sistema</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 GameCatalog. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Lógica simples apenas para simular o login
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if(email && password) {
+                // Redireciona para o painel de admin
+                window.location.href = 'admin.html';
+            }
+        }
+    </script>
+</body>
+</html>
