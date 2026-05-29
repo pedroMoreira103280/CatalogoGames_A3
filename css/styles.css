@@ -82,6 +82,19 @@ body {
     border-bottom: 2px solid var(--accent-color);
 }
 
+.nav-links .btn-login {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    padding: 0.3rem 0.8rem;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.nav-links .btn-login:hover {
+    background-color: #0088cc;
+    color: var(--text-color);
+}
+
 /* ===========================
    HEADER / HERO
    =========================== */
