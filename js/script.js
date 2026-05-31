@@ -145,3 +145,86 @@ document.addEventListener('DOMContentLoaded', function() {
         loadGameDetail();
     }
 });
+
+/* ===========================
+   API DE NOTICIAS
+   =========================== */
+// Variáveis para controle de paginação
+let paginaAtual = 1;
+const noticiasPorPagina = 10;
+const maxPaginas = 10; // limite da API
+
+// Função para buscar notícias da API
+async function buscarNoticias(pagina = 1) {
+  try {
+    const response = await fetch(
+      `https://newsapi.org/v2/everything?q=jogos&pageSize=${noticiasPorPagina}&page=${pagina}&apiKey=cc9e5f5b76164b4cbf1388cebab1b323`
+    );
+
+    const data = await response.json();
+// Verifica se a resposta contém artigos
+    if (!data.articles) {
+      console.error("API não retornou artigos");
+      return;
+    }
+
+// Limpa o container antes de adicionar novas notícias
+    const container = document.getElementById("listaNoticias");
+    container.innerHTML = "";
+
+// Adiciona cada notícia ao container
+    data.articles.forEach(noticia => {
+        // Cria um card para cada notícia
+      const card = document.createElement("div");
+      card.classList.add("news-article");
+
+        // Usa imagem da notícia ou placeholder se não houver
+      const imagem = document.createElement("img");
+      imagem.src = noticia.urlToImage || "https://via.placeholder.com/300x150";
+      imagem.alt = noticia.title;
+
+        // Cria um link para o título da notícia
+      const titulo = document.createElement("a");
+      titulo.href = noticia.url;
+      titulo.textContent = noticia.title;
+      titulo.target = "_blank";
+
+        // Cria um parágrafo para a descrição da notícia
+      const descricao = document.createElement("p");
+      descricao.textContent = noticia.description || "Sem descrição";
+
+        // Adiciona imagem, título e descrição ao card
+      card.appendChild(imagem);
+      card.appendChild(titulo);
+      card.appendChild(descricao);
+
+        // Adiciona o card ao container
+      container.appendChild(card);
+    });
+    // Atualiza o número da página
+    document.getElementById("numeroPagina").innerText = pagina;
+
+    // Scroll
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+  } catch (erro) {
+    console.error("Erro:", erro);
+  }
+}
+    // Funções para navegação entre páginas
+function proximaPagina() {
+  if (paginaAtual < maxPaginas) {
+    paginaAtual++;
+    buscarNoticias(paginaAtual);
+  }
+}
+
+function paginaAnterior() {
+  if (paginaAtual > 1) {
+    paginaAtual--;
+    buscarNoticias(paginaAtual);
+  }
+}
+
+// inicialização função buscar Noticias
+buscarNoticias(paginaAtual);

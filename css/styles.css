@@ -375,6 +375,122 @@ main {
 }
 
 /* ===========================
+   PÁGINA NOTIÍCIAS
+   =========================== */
+.news-section {
+    padding: 2rem 0;
+}
+
+.news-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.news-container h2 {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    margin-bottom: 2rem;
+}
+
+.news-article {
+    background-color: var(--secondary-color);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.news-article h3 {
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.news-article p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+}
+
+/* imagem dentro do article */
+.news-article img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+/* ===========================
+   HEADER DE NOTÍCIAS
+   =========================== */
+
+.news {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+    padding: 2rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.news-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+}
+
+.news-content p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+
+/* ===========================
+   PAGINAÇÃO NOTICIAS
+   =========================== */
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 2rem;
+}
+
+.paginacao button {
+    background-color: var(--secondary-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+/* HOVER PAGINACAO */
+.paginacao button:hover {
+    background-color: var(--accent-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Botão desabilitado | PAGINAÇÃO */
+.paginacao button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Número da página | PAGINAÇÃO */
+#numeroPagina {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+
+
+/* ===========================
    FOOTER
    =========================== */
 
