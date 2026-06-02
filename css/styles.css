@@ -388,6 +388,58 @@ main {
 }
 
 /* ===========================
+   EQUIPE
+   =========================== */
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    align-items: stretch;
+}
+
+.team-card {
+    background: #191927;
+    border: 1px solid #223bb6;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    height: 180px;
+    justify-content: center;
+}
+
+.team-card img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4a00c9;
+}
+
+.team-card .member-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.team-card .member-ra {
+    margin: 0;
+    font-size: 12px;
+    color: #aaaaaa;
+}
+
+
+/* ===========================
    FOOTER
    =========================== */
 
