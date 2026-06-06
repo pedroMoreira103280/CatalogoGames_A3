@@ -96,7 +96,8 @@ function buildMediaHtml(game, externalData) {
 async function loadGameDetail() {
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = parseInt(urlParams.get('id'), 10);
-    const game = games.find(g => g.id === gameId);
+    const gamesList = getGames();
+    const game = gamesList.find(g => g.id === gameId);
 
     if (!game) {
         document.getElementById('game-content').innerHTML = `
@@ -160,6 +161,140 @@ async function loadGameDetail() {
 }
 
 /* ===========================
+   SISTEMA DE AUTENTICAÇÃO
+   =========================== */
+
+function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('login-error');
+    
+    // Reset erro
+    if(errorMsg) errorMsg.style.display = 'none';
+
+    // Validação estática
+    if (email === 'admin@gamecatalog.com' && password === 'admin123') {
+        sessionStorage.setItem('userAuth', JSON.stringify({ role: 'admin', name: 'Administrador' }));
+        window.location.href = 'admin.html';
+    } else if (email === 'user@gamecatalog.com' && password === 'user123') {
+        sessionStorage.setItem('userAuth', JSON.stringify({ role: 'user', name: 'Usuário Comum' }));
+        window.location.href = 'index.html';
+    } else {
+        if(errorMsg) {
+            errorMsg.innerText = 'E-mail ou senha incorretos.';
+            errorMsg.style.display = 'block';
+        } else {
+            alert('E-mail ou senha incorretos.');
+        }
+    }
+}
+
+function logout() {
+    sessionStorage.removeItem('userAuth');
+    window.location.href = 'index.html';
+}
+
+function getUser() {
+    const authData = sessionStorage.getItem('userAuth');
+    return authData ? JSON.parse(authData) : null;
+}
+
+// Verifica acesso em rotas protegidas
+function checkAuth() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const user = getUser();
+    
+    if (currentPage === 'admin.html') {
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+    }
+}
+
+/* ===========================
+   SISTEMA DE GERENCIAMENTO (CRUD)
+   =========================== */
+
+function getGames() {
+    const localGames = localStorage.getItem('games');
+    if (localGames) {
+        return JSON.parse(localGames);
+    }
+    // Se não tiver no localStorage, salva e retorna a constante 'games' inicial
+    localStorage.setItem('games', JSON.stringify(games));
+    return games;
+}
+
+function saveGames(gamesArray) {
+    localStorage.setItem('games', JSON.stringify(gamesArray));
+}
+
+function loadAdminTable() {
+    const tbody = document.getElementById('admin-table-body');
+    if (!tbody) return;
+    
+    const gamesList = getGames();
+    let html = '';
+    
+    gamesList.forEach(game => {
+        html += `
+            <div class="admin-table-row">
+                <div class="col">${game.id}</div>
+                <div class="col">${game.title}</div>
+                <div class="col">${game.genre}</div>
+                <div class="col">
+                    <button class="btn-action btn-edit" style="background-color: var(--accent-color); color: #fff; padding: 0.3rem 0.8rem; border: none; border-radius: 4px; cursor: pointer;" onclick="openEditModal(${game.id})">Editar</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+let currentEditId = null;
+
+function openEditModal(id) {
+    const gamesList = getGames();
+    const game = gamesList.find(g => g.id === id);
+    if (!game) return;
+    
+    currentEditId = id;
+    document.getElementById('edit-title').value = game.title;
+    document.getElementById('edit-genre').value = game.genre;
+    
+    document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+    currentEditId = null;
+}
+
+function saveGameEdit(e) {
+    e.preventDefault();
+    
+    if (currentEditId === null) return;
+    
+    const title = document.getElementById('edit-title').value;
+    const genre = document.getElementById('edit-genre').value;
+    
+    const gamesList = getGames();
+    const index = gamesList.findIndex(g => g.id === currentEditId);
+    
+    if (index !== -1) {
+        gamesList[index].title = title;
+        gamesList[index].genre = genre;
+        
+        saveGames(gamesList);
+        closeEditModal();
+        loadAdminTable();
+        alert('Jogo atualizado com sucesso!');
+    }
+}
+
+/* ===========================
    FUNÇÃO: Atualiza Link Ativo na Navegação
    =========================== */
 
@@ -175,6 +310,96 @@ function updateActiveNav() {
             link.classList.add('active');
         }
     });
+
+    // Atualiza estado do botão Login/Sair
+    const loginBtn = document.querySelector('.btn-login') || document.querySelector('a[href="login.html"]');
+    const user = getUser();
+    if (loginBtn) {
+        if (user) {
+            loginBtn.innerText = 'Sair';
+            loginBtn.href = '#';
+            loginBtn.onclick = (e) => {
+                e.preventDefault();
+                logout();
+            };
+        } else {
+            loginBtn.innerText = 'Login';
+            loginBtn.href = 'login.html';
+            loginBtn.onclick = null;
+        }
+    }
+}
+
+/* ===========================
+   FUNÇÃO: Carrega Games na Home
+   =========================== */
+
+function loadHomeGames() {
+    const grid = document.getElementById('home-games-grid');
+    if (!grid) return;
+    
+    const games = getGames();
+    let html = '';
+    
+    games.forEach((game) => {
+        html += `
+            <div class="game-card">
+                <div class="game-image" style="background-color: #2a2a2a;">
+                    <img src="images/game${game.id}.jpg" alt="${game.title}" onerror="this.style.display='none'">
+                    <div class="placeholder">${game.title}</div>
+                </div>
+                <div class="game-info">
+                    <h3>${game.title}</h3>
+                    <p class="genre">${game.genre}</p>
+                    <p class="description">${game.description}</p>
+                    <a href="game-detail.html?id=${game.id}" class="btn-details">Ver Detalhes</a>
+                </div>
+            </div>
+        `;
+    });
+    
+    grid.innerHTML = html;
+}
+
+/* ===========================
+   FUNÇÃO: Carrega Notícias
+   =========================== */
+
+function loadNews() {
+    const grid = document.getElementById('news-grid');
+    if (!grid) return;
+    
+    const games = getGames();
+    // Pega o nome do jogo 1 e 3 para ser usado dinamicamente na notícia, ou um nome genérico se não existir
+    const game1Title = games.length > 0 ? games[0].title : 'Elden Ring';
+    const game3Title = games.length > 2 ? games[2].title : 'Cyberpunk';
+    
+    grid.innerHTML = `
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Atualização de ${game1Title}</h3>
+                <p class="genre">Data: Hoje</p>
+                <p class="description">A desenvolvedora anunciou hoje uma grande atualização trazendo novos modos de jogo e correções de balanceamento esperadas pelos fãs.</p>
+                <a href="#" class="btn-details">Ler mais</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Promoção de Fim de Ano</h3>
+                <p class="genre">Data: Ontem</p>
+                <p class="description">Aproveite as ofertas incríveis de fim de ano nas principais lojas digitais com descontos de até 80% em grandes títulos.</p>
+                <a href="#" class="btn-details">Ler mais</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Anúncio Surpresa: ${game3Title} 2</h3>
+                <p class="genre">Data: 2 dias atrás</p>
+                <p class="description">O estúdio lançou um teaser misterioso sugerindo a continuação direta para a próxima geração de consoles.</p>
+                <a href="#" class="btn-details">Ler mais</a>
+            </div>
+        </div>
+    `;
 }
 
 /* ===========================
@@ -182,10 +407,24 @@ function updateActiveNav() {
    =========================== */
 
 document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
     updateActiveNav();
-
-    if (window.location.pathname.includes('game-detail.html')) {
+    const pathname = window.location.pathname;
+    
+    if (pathname.includes('game-detail.html')) {
         loadGameDetail();
+    } else if (pathname.includes('admin.html')) {
+        loadAdminTable();
+        // Setup Modal Events
+        const editForm = document.getElementById('edit-form');
+        if(editForm) {
+            editForm.addEventListener('submit', saveGameEdit);
+        }
+    } else if (pathname.includes('news.html')) {
+        loadNews();
+        buscarNoticias(paginaAtual);
+    } else if (pathname === '/' || pathname.includes('index.html')) {
+        loadHomeGames();
     }
 });
 
@@ -213,6 +452,7 @@ async function buscarNoticias(pagina = 1) {
 
 // Limpa o container antes de adicionar novas notícias
     const container = document.getElementById("listaNoticias");
+    if (!container) return;
     container.innerHTML = "";
 
 // Adiciona cada notícia ao container
@@ -269,5 +509,4 @@ function paginaAnterior() {
   }
 }
 
-// inicialização função buscar Noticias
-buscarNoticias(paginaAtual);
+// (Removida a chamada global solta - agora é iniciada no DOMContentLoaded)
