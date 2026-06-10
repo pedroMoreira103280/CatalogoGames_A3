@@ -1,55 +1,163 @@
 /* ===========================
-   BASE DE DADOS INICIAL DOS GAMES E USUÁRIOS
+   BASE DE DADOS DOS GAMES
    =========================== */
 
-const initialGames = [
+const games = [
     {
-        id: 1,
-        title: "Elden Ring",
-        genre: "Ação/RPG",
-        year: 2022,
-        rating: 9.3,
-        description: "Um épico mundo aberto criado em colaboração entre FromSoftware e George R. R. Martin.",
-        details: "Desenvolvido pela renomada FromSoftware, criadores da série Dark Souls, Elden Ring traz a fórmula desafiadora para um mundo aberto.",
-        platforms: ["PlayStation 4", "PlayStation 5", "Xbox One", "PC"],
+        id: 141114,
+        title: "007 First Light",
+        genre: "Ação/Espionagem",
+        year: 2026,
+        youtubeId: 'gDvbGANDH4E',
+        description: "007 First Light é um emocionante jogo de ação e aventura de espionagem da IO Interactive. Acompanhe James Bond como um jovem, engenhoso e, às vezes, imprudente recruta no programa de treinamento do MI6.",
+        platforms: ["PlayStation 5", "Xbox Series X/S", "PC"],
         features: ["Mundo aberto", "Multijogador", "Boss épicos", "Customização profunda"]
     },
     {
-        id: 2,
+        id: 7346,
         title: "The Legend of Zelda: Breath of the Wild",
         genre: "Aventura/Ação",
         year: 2017,
-        rating: 9.7,
-        description: "Explore um vasto reino com liberdade total.",
-        details: "Um divisor de águas na indústria dos games, Breath of the Wild oferece uma liberdade sem precedentes.",
+        youtubeId: 'zw47_q9wbBE',
+        description: "Explore um vasto reino com liberdade total. Escale montanhas, resolva enigmas e enfrente inimigos em um jogo que redefiniu o gênero de aventuras.",
         platforms: ["Nintendo Switch", "Wii U"],
         features: ["Exploração livre", "Criatividade em combate", "Enigmas únicos", "Física interativa"]
     },
     {
-        id: 3,
+        id: 1877,
         title: "Cyberpunk 2077",
         genre: "RPG/Ficção Científica",
         year: 2020,
-        rating: 8.5,
-        description: "Imerja-se em Night City, um futuro distópico.",
-        details: "CD Projekt Red apresenta um RPG ambicioso em um mundo ciberpunk densamente construído.",
-        platforms: ["PlayStation 4", "PlayStation 5", "PC"],
+        youtubeId: '8X2kIfS6fb8',
+        description: "Imerja-se em Night City, um futuro distópico repleto de ação, romance e decisões que importam.",
+        platforms: ["PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X/S", "PC"],
         features: ["Mundo aberto gigante", "Romance e relacionamentos", "Cibernética", "Escolhas narrativas"]
     }
 ];
 
-// Inicializa dados no localStorage se não existirem
-if (!localStorage.getItem('gamesData')) {
-    localStorage.setItem('gamesData', JSON.stringify(initialGames));
+/* ===========================
+   FUNÇÃO: Busca dados externos do IGDB
+   =========================== */
+
+async function fetchExternalGameData(gameId) {
+    try {
+        const response = await fetch(`/api/game?id=${gameId}`);
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || response.statusText);
+        }
+
+        const data = await response.json();
+        return {
+            aggregated_rating: typeof data.aggregated_rating === 'number' ? data.aggregated_rating : null,
+            url: data.url || null
+        };
+    } catch (error) {
+        console.error('Erro ao buscar dados externos do jogo:', error);
+        return { aggregated_rating: null, url: null };
+    }
 }
 
-// Obtém os games atuais do localStorage
-function getGames() {
-    return JSON.parse(localStorage.getItem('gamesData')) || [];
+/* ===========================
+   FUNÇÃO: Monta mídia de capa ou vídeo incorporado
+   =========================== */
+
+function buildMediaHtml(game, externalData) {
+    const createYoutubeEmbed = (videoId) => `
+        <div class="detail-image" style="height:auto; padding:0;">
+            <div class="video-wrapper" style="position:relative; width:100%; max-width:900px; margin:0 auto; padding-top:56.25%; border-radius:8px; overflow:hidden;">
+                <iframe src="https://www.youtube.com/embed/${videoId}" title="${game.title} trailer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+            </div>
+        </div>`;
+
+    if (game.youtubeId) {
+        return createYoutubeEmbed(game.youtubeId);
+    }
+
+    if (externalData.url) {
+        const ytMatch = externalData.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+        if (ytMatch) {
+            return createYoutubeEmbed(ytMatch[1]);
+        }
+    }
+
+    return `
+        <div class="detail-image">
+            <img src="images/game${game.id}.jpg" alt="${game.title}" onerror="this.style.display='none'">
+            <div class="placeholder">${game.title}</div>
+        </div>`;
 }
 
-function saveGames(gamesArr) {
-    localStorage.setItem('gamesData', JSON.stringify(gamesArr));
+/* ===========================
+   FUNÇÃO: Carrega Detalhes do Game
+   =========================== */
+
+async function loadGameDetail() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameId = parseInt(urlParams.get('id'), 10);
+    const gamesList = getGames();
+    const game = gamesList.find(g => g.id === gameId);
+
+    if (!game) {
+        document.getElementById('game-content').innerHTML = `
+            <div style="text-align: center; padding: 3rem;">
+                <h2 style="color: #ff6b6b;">Game não encontrado</h2>
+                <p style="color: #b0b0b0; margin: 1rem 0;">O jogo que você procura não existe em nosso catálogo.</p>
+                <a href="index.html" class="btn-details" style="display: inline-block; margin-top: 1rem;">Voltar para Home</a>
+            </div>
+        `;
+        return;
+    }
+
+    const externalData = await fetchExternalGameData(gameId);
+    const displayedRating = externalData.aggregated_rating !== null ? externalData.aggregated_rating.toFixed(1) : game.rating;
+    const detailsButton = externalData.url ? `<a href="${externalData.url}" target="_blank" rel="noopener noreferrer" class="btn-details" style="margin-top: 1rem;">Mais detalhes</a>` : '';
+
+    const platformsList = game.platforms.join(', ');
+    const featuresList = game.features.map(f => `<span style="display: inline-block; background-color: #3a3a3a; padding: 0.3rem 0.8rem; border-radius: 20px; margin-right: 0.5rem; margin-bottom: 0.5rem;">${f}</span>`).join('');
+    const mediaHtml = buildMediaHtml(game, externalData);
+
+    const htmlContent = `
+        <div class="detail-header">
+            <h2>${game.title}</h2>
+            <span class="genre">${game.genre} • ${game.year}</span>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span style="font-size: 1.5rem; color: #00a8ff;">⭐ ${displayedRating}</span>
+                <span style="color: #b0b0b0;">/ 100</span>
+            </div>
+        </div>
+
+        ${mediaHtml}
+
+        <div class="detail-description">
+            <h3>Sinopse</h3>
+            <p>${game.description}</p>
+        </div>
+
+        <div class="detail-specs">
+            <div class="spec-item">
+                <strong>Plataformas</strong>
+                <span>${platformsList}</span>
+            </div>
+            <div class="spec-item">
+                <strong>Ano de Lançamento</strong>
+                <span>${game.year}</span>
+            </div>
+            <div class="spec-item">
+                <strong>Classificação</strong>
+                <span>⭐ ${displayedRating}/100</span>
+            </div>
+        </div>
+
+        <div style="background-color: #2d2d2d; padding: 2rem; border-radius: 8px; margin-top: 2rem; border: 1px solid #3a3a3a;">
+            <h3 style="color: #00a8ff; margin-bottom: 1rem;">Características Principais</h3>
+            <div>${featuresList}</div>
+            ${detailsButton}
+        </div>
+    `;
+
+    document.getElementById('game-content').innerHTML = htmlContent;
 }
 
 /* ===========================
@@ -105,39 +213,53 @@ function checkAuth() {
 }
 
 /* ===========================
-   GERENCIAMENTO DE GAMES (ADMIN)
+   SISTEMA DE GERENCIAMENTO (CRUD)
    =========================== */
 
+function getGames() {
+    const localGames = localStorage.getItem('games');
+    if (localGames) {
+        return JSON.parse(localGames);
+    }
+    // Se não tiver no localStorage, salva e retorna a constante 'games' inicial
+    localStorage.setItem('games', JSON.stringify(games));
+    return games;
+}
+
+function saveGames(gamesArray) {
+    localStorage.setItem('games', JSON.stringify(gamesArray));
+}
+
 function loadAdminTable() {
-    const tableContainer = document.getElementById('admin-table-body');
-    if (!tableContainer) return; // Não estamos na página de admin
-
-    const games = getGames();
+    const tbody = document.getElementById('admin-table-body');
+    if (!tbody) return;
+    
+    const gamesList = getGames();
     let html = '';
-
-    games.forEach(game => {
+    
+    gamesList.forEach(game => {
         html += `
             <div class="admin-table-row">
                 <div class="col">${game.id}</div>
                 <div class="col">${game.title}</div>
                 <div class="col">${game.genre}</div>
                 <div class="col">
-                    <button class="btn-small btn-edit" onclick="openEditModal(${game.id})">Editar</button>
+                    <button class="btn-action btn-edit" style="background-color: var(--accent-color); color: #fff; padding: 0.3rem 0.8rem; border: none; border-radius: 4px; cursor: pointer;" onclick="openEditModal(${game.id})">Editar</button>
                 </div>
             </div>
         `;
     });
-
-    tableContainer.innerHTML = html;
+    
+    tbody.innerHTML = html;
 }
 
 let currentEditId = null;
 
 function openEditModal(id) {
-    const games = getGames();
-    const game = games.find(g => g.id === id);
+    const gamesList = getGames();
+    const game = gamesList.find(g => g.id === id);
     if (!game) return;
-
+    
     currentEditId = id;
     document.getElementById('edit-title').value = game.title;
     document.getElementById('edit-genre').value = game.genre;
@@ -152,113 +274,45 @@ function closeEditModal() {
 
 function saveGameEdit(e) {
     e.preventDefault();
+    
     if (currentEditId === null) return;
-
-    const games = getGames();
-    const index = games.findIndex(g => g.id === currentEditId);
+    
+    const title = document.getElementById('edit-title').value;
+    const genre = document.getElementById('edit-genre').value;
+    
+    const gamesList = getGames();
+    const index = gamesList.findIndex(g => g.id === currentEditId);
     
     if (index !== -1) {
-        games[index].title = document.getElementById('edit-title').value;
-        games[index].genre = document.getElementById('edit-genre').value;
+        gamesList[index].title = title;
+        gamesList[index].genre = genre;
         
-        saveGames(games);
-        loadAdminTable();
+        saveGames(gamesList);
         closeEditModal();
+        loadAdminTable();
         alert('Jogo atualizado com sucesso!');
     }
 }
 
 /* ===========================
-   FUNÇÃO: Carrega Detalhes do Game
-   =========================== */
-
-function loadGameDetail() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const gameId = parseInt(urlParams.get('id'));
-    const games = getGames();
-    const game = games.find(g => g.id === gameId);
-    
-    if (!game) {
-        document.getElementById('game-content').innerHTML = `
-            <div style="text-align: center; padding: 3rem;">
-                <h2 style="color: #ff6b6b;">Game não encontrado</h2>
-                <p style="color: #b0b0b0; margin: 1rem 0;">O jogo que você procura não existe em nosso catálogo.</p>
-                <a href="index.html" class="btn-details" style="display: inline-block; margin-top: 1rem;">Voltar para Home</a>
-            </div>
-        `;
-        return;
-    }
-    
-    const platformsList = game.platforms.join(', ');
-    const featuresList = game.features.map(f => `<span style="display: inline-block; background-color: #3a3a3a; padding: 0.3rem 0.8rem; border-radius: 20px; margin-right: 0.5rem; margin-bottom: 0.5rem;">${f}</span>`).join('');
-    
-    const htmlContent = `
-        <div class="detail-header">
-            <h2>${game.title}</h2>
-            <span class="genre">${game.genre} • ${game.year}</span>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <span style="font-size: 1.5rem; color: #00a8ff;">⭐ ${game.rating}</span>
-                <span style="color: #b0b0b0;">/ 10</span>
-            </div>
-        </div>
-        
-        <div class="detail-image">
-            🎮 ${game.title}
-        </div>
-        
-        <div class="detail-description">
-            <h3>Sinopse</h3>
-            <p>${game.description}</p>
-        </div>
-        
-        <div class="detail-description">
-            <h3>Detalhes Completos</h3>
-            <p>${game.details}</p>
-        </div>
-        
-        <div class="detail-specs">
-            <div class="spec-item">
-                <strong>Plataformas</strong>
-                <span>${platformsList}</span>
-            </div>
-            <div class="spec-item">
-                <strong>Ano de Lançamento</strong>
-                <span>${game.year}</span>
-            </div>
-            <div class="spec-item">
-                <strong>Classificação</strong>
-                <span>⭐ ${game.rating}/10</span>
-            </div>
-        </div>
-        
-        <div style="background-color: #2d2d2d; padding: 2rem; border-radius: 8px; margin-top: 2rem; border: 1px solid #3a3a3a;">
-            <h3 style="color: #00a8ff; margin-bottom: 1rem;">Características Principais</h3>
-            <div>${featuresList}</div>
-        </div>
-    `;
-    
-    document.getElementById('game-content').innerHTML = htmlContent;
-}
-
-/* ===========================
-   FUNÇÃO: Atualiza Link Ativo e Login Status
+   FUNÇÃO: Atualiza Link Ativo na Navegação
    =========================== */
 
 function updateActiveNav() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.nav-links a');
-    
+
     navLinks.forEach(link => {
         link.classList.remove('active');
         const href = link.getAttribute('href');
-        
+
         if (href === currentPage || (currentPage === '' && href === 'index.html')) {
             link.classList.add('active');
         }
     });
 
     // Atualiza estado do botão Login/Sair
-    const loginBtn = document.querySelector('.btn-login');
+    const loginBtn = document.querySelector('.btn-login') || document.querySelector('a[href="login.html"]');
     const user = getUser();
     if (loginBtn) {
         if (user) {
@@ -277,24 +331,99 @@ function updateActiveNav() {
 }
 
 /* ===========================
+   FUNÇÃO: Carrega Games na Home
+   =========================== */
+
+function loadHomeGames() {
+    const grid = document.getElementById('home-games-grid');
+    if (!grid) return;
+    
+    const games = getGames();
+    let html = '';
+    
+    games.forEach((game) => {
+        html += `
+            <div class="game-card">
+                <div class="game-image" style="background-color: #2a2a2a;">
+                    <img src="images/game${game.id}.jpg" alt="${game.title}" onerror="this.style.display='none'">
+                </div>
+                <div class="game-info">
+                    <h3>${game.title}</h3>
+                    <p class="genre">${game.genre}</p>
+                    <p class="description">${game.description}</p>
+                    <a href="game-detail.html?id=${game.id}" class="btn-details">Ver Detalhes</a>
+                </div>
+            </div>
+        `;
+    });
+    
+    grid.innerHTML = html;
+}
+
+/* ===========================
+   FUNÇÃO: Carrega Notícias
+   =========================== */
+
+function loadNews() {
+    const grid = document.getElementById('news-grid');
+    if (!grid) return;
+    
+    const games = getGames();
+    // Pega o nome do jogo 1 e 3 para ser usado dinamicamente na notícia, ou um nome genérico se não existir
+    const game1Title = games.length > 0 ? games[0].title : 'Elden Ring';
+    const game3Title = games.length > 2 ? games[2].title : 'Cyberpunk';
+    
+    grid.innerHTML = `
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Atualização de ${game1Title}</h3>
+                <p class="genre">Data: Hoje</p>
+                <p class="description">A desenvolvedora anunciou hoje uma grande atualização trazendo novos modos de jogo e correções de balanceamento esperadas pelos fãs.</p>
+                <a href="#" class="btn-details">Ler mais</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Promoção de Fim de Ano</h3>
+                <p class="genre">Data: Ontem</p>
+                <p class="description">Aproveite as ofertas incríveis de fim de ano nas principais lojas digitais com descontos de até 80% em grandes títulos.</p>
+                <a href="#" class="btn-details">Ler mais</a>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Anúncio Surpresa: ${game3Title} 2</h3>
+                <p class="genre">Data: 2 dias atrás</p>
+                <p class="description">O estúdio lançou um teaser misterioso sugerindo a continuação direta para a próxima geração de consoles.</p>
+                <a href="#" class="btn-details">Ler mais</a>
+            </div>
+        </div>
+    `;
+}
+
+/* ===========================
    INICIALIZAÇÃO
    =========================== */
 
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
     updateActiveNav();
+    const pathname = window.location.pathname;
     
-    if (window.location.pathname.includes('game-detail.html')) {
+    if (pathname.includes('game-detail.html')) {
         loadGameDetail();
-    }
-
-    if (window.location.pathname.includes('admin.html')) {
+    } else if (pathname.includes('admin.html')) {
         loadAdminTable();
         // Setup Modal Events
         const editForm = document.getElementById('edit-form');
         if(editForm) {
             editForm.addEventListener('submit', saveGameEdit);
         }
+    } else if (pathname.includes('news.html')) {
+        loadNews();
+        buscarNoticias(paginaAtual);
+    } else if (pathname === '/' || pathname.includes('index.html')) {
+        loadHomeGames();
     }
 });
 
@@ -322,6 +451,7 @@ async function buscarNoticias(pagina = 1) {
 
 // Limpa o container antes de adicionar novas notícias
     const container = document.getElementById("listaNoticias");
+    if (!container) return;
     container.innerHTML = "";
 
 // Adiciona cada notícia ao container
@@ -378,5 +508,4 @@ function paginaAnterior() {
   }
 }
 
-// inicialização função buscar Noticias
-buscarNoticias(paginaAtual);
+// (Removida a chamada global solta - agora é iniciada no DOMContentLoaded)
