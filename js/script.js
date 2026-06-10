@@ -356,7 +356,6 @@ function loadHomeGames() {
             <div class="game-card">
                 <div class="game-image" style="background-color: #2a2a2a;">
                     <img src="images/game${game.id}.jpg" alt="${game.title}" onerror="this.style.display='none'">
-                    <div class="placeholder">${game.title}</div>
                 </div>
                 <div class="game-info">
                     <h3>${game.title}</h3>
