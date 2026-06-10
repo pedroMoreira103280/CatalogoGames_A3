@@ -316,6 +316,16 @@ function updateActiveNav() {
     const user = getUser();
     if (loginBtn) {
         if (user) {
+            // Adiciona o link do Painel ADM caso o usuário seja admin e ele não exista na tela
+            if (user.role === 'admin' && !document.querySelector('a[href="admin.html"]')) {
+                const adminLi = document.createElement('li');
+                adminLi.innerHTML = '<a href="admin.html">Painel ADM</a>';
+                const ul = loginBtn.closest('ul');
+                if (ul) {
+                    ul.insertBefore(adminLi, loginBtn.closest('li'));
+                }
+            }
+
             loginBtn.innerText = 'Sair';
             loginBtn.href = '#';
             loginBtn.onclick = (e) => {
