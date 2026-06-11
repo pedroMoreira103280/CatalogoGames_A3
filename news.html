@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícias - Notícias de Games</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navegação -->
+   <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🎮 GameCatalog</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html" class="active">Sobre</a></li>
+                <li><a href="news.html">Notícias</a></li>
+                <li><a href="login.html" class="btn-login">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="news">
+        <div class="news-content">
+            <p>Confira as últimas notícias sobre os jogos que você ama.</p>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal das Noticias -->
+    <main>
+        <section class="games-container" style="padding-top: 2rem;">
+            <h2>Destaques do Catálogo</h2>
+            <div class="games-grid" id="news-grid">
+                <!-- As notícias locais serão carregadas aqui via JavaScript -->
+            </div>
+        </section>
+
+        <section class="news-section">
+            <div class="news-container">
+                <h2 style="margin-top: 3rem;">Últimas Notícias (Web)</h2>
+                
+              <div id="listaNoticias" class="news-grid">
+                 <!-- As notícias serão carregadas aqui via JavaScript -->
+
+              </div>
+              
+    <!-- Paginação -->
+                <div class="paginacao">
+                    <button id="bttnAnterior" onclick="paginaAnterior()">⬅ Anterior</button>
+                    <span id="numeroPagina">1</span>
+                    <button onclick="proximaPagina()">Próximo ➡</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 GameCatalog. AMBIENTE HOMOLOGAÇÃO.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+
+

@@ -14,6 +14,8 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="about.html">Sobre</a></li>
+                <li><a href="news.html">Notícias</a></li>
+                <li><a href="login.html">Login</a></li>
             </ul>
         </div>
     </nav>
@@ -32,48 +34,8 @@
             <h2>Nossos Destaques</h2>
             
             <!-- Grid de Games -->
-            <div class="games-grid">
-                <!-- Game 1 -->
-                <div class="game-card">
-                    <div class="game-image" style="background-color: #2a2a2a;">
-                        <img src="images/game1.jpg" alt="Elden Ring" onerror="this.style.display='none'">
-                        <div class="placeholder">Elden Ring</div>
-                    </div>
-                    <div class="game-info">
-                        <h3>Elden Ring</h3>
-                        <p class="genre">Ação/RPG</p>
-                        <p class="description">Um épico mundo aberto repleto de mistérios e desafios épicos. Obra-prima do desenvolvedor FromSoftware.</p>
-                        <a href="game-detail.html?id=1" class="btn-details">Ver Detalhes</a>
-                    </div>
-                </div>
-
-                <!-- Game 2 -->
-                <div class="game-card">
-                    <div class="game-image" style="background-color: #1a3a2a;">
-                        <img src="images/game2.jpg" alt="Zelda" onerror="this.style.display='none'">
-                        <div class="placeholder">The Legend of Zelda</div>
-                    </div>
-                    <div class="game-info">
-                        <h3>The Legend of Zelda: Breath of the Wild</h3>
-                        <p class="genre">Aventura/Ação</p>
-                        <p class="description">Explore um vasto reino com liberdade total. Um jogo que redefiniu o gênero de aventuras.</p>
-                        <a href="game-detail.html?id=2" class="btn-details">Ver Detalhes</a>
-                    </div>
-                </div>
-
-                <!-- Game 3 -->
-                <div class="game-card">
-                    <div class="game-image" style="background-color: #3a1a1a;">
-                        <img src="images/game3.jpg" alt="Cyberpunk" onerror="this.style.display='none'">
-                        <div class="placeholder">Cyberpunk 2077</div>
-                    </div>
-                    <div class="game-info">
-                        <h3>Cyberpunk 2077</h3>
-                        <p class="genre">RPG/Ficção Científica</p>
-                        <p class="description">Imerja-se em Night City, um futuro distópico cheio de ação e decisões que importam.</p>
-                        <a href="game-detail.html?id=3" class="btn-details">Ver Detalhes</a>
-                    </div>
-                </div>
+            <div class="games-grid" id="home-games-grid">
+                <!-- Games will be loaded dynamically by JavaScript -->
             </div>
         </section>
     </main>
