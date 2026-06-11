@@ -5,8 +5,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const IGDB_URL = 'https://api.igdb.com/v4/games';
-const IGDB_AUTH = 'Bearer 3zr3f9m1j85pnmnarnjxpcbqqefjys';
-const IGDB_CLIENT_ID = 'ta6wq166u7fefmeyb24a2va8h1qyi3';
+const IGDB_AUTH = process.env.IGDB_AUTH;
+const IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
 
 app.use(express.static(path.join(__dirname)));
 
