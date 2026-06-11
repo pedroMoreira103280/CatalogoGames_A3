@@ -7,6 +7,8 @@ const PORT = process.env.PORT || 3000;
 const IGDB_URL = 'https://api.igdb.com/v4/games';
 const IGDB_AUTH = process.env.IGDB_AUTH;
 const IGDB_CLIENT_ID = process.env.IGDB_CLIENT_ID;
+const NEWS_API_URL = 'https://newsapi.org/v2/everything';
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
 
 app.use(express.static(path.join(__dirname)));
 
@@ -42,6 +44,36 @@ app.get('/api/game', async (req, res) => {
   } catch (error) {
     console.error('Erro ao buscar game da API IGDB:', error);
     return res.status(500).json({ error: 'Erro interno ao buscar dados do IGDB' });
+  }
+});
+
+app.get('/api/news', async (req, res) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const pageSize = parseInt(req.query.pageSize, 10) || 10;
+
+  if (!NEWS_API_KEY) {
+    return res.status(500).json({ error: 'NEWS_API_KEY nao configurada no servidor' });
+  }
+
+  try {
+    const params = new URLSearchParams({
+      q: 'jogos',
+      pageSize: String(pageSize),
+      page: String(page),
+      apiKey: NEWS_API_KEY
+    });
+
+    const response = await fetch(`${NEWS_API_URL}?${params}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json(data);
+    }
+
+    return res.json(data);
+  } catch (error) {
+    console.error('Erro ao buscar noticias da NewsAPI:', error);
+    return res.status(500).json({ error: 'Erro interno ao buscar noticias' });
   }
 });
 

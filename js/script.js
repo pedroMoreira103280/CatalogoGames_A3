@@ -389,7 +389,7 @@ function loadNews() {
                 <h3>Atualização de ${game1Title}</h3>
                 <p class="genre">Data: Hoje</p>
                 <p class="description">A desenvolvedora anunciou hoje uma grande atualização trazendo novos modos de jogo e correções de balanceamento esperadas pelos fãs.</p>
-                <a href="#" class="btn-details">Ler mais</a>
+                <a href="https://store.steampowered.com/news/app/3768760/view/693136511334351582" class="btn-details">Ler mais</a>
             </div>
         </div>
         <div class="game-card">
@@ -397,7 +397,7 @@ function loadNews() {
                 <h3>Promoção de Fim de Ano</h3>
                 <p class="genre">Data: Ontem</p>
                 <p class="description">Aproveite as ofertas incríveis de fim de ano nas principais lojas digitais com descontos de até 80% em grandes títulos.</p>
-                <a href="#" class="btn-details">Ler mais</a>
+                <a href="https://store.steampowered.com/" class="btn-details">Ler mais</a>
             </div>
         </div>
         <div class="game-card">
@@ -405,7 +405,7 @@ function loadNews() {
                 <h3>Anúncio Surpresa: ${game3Title} 2</h3>
                 <p class="genre">Data: 2 dias atrás</p>
                 <p class="description">O estúdio lançou um teaser misterioso sugerindo a continuação direta para a próxima geração de consoles.</p>
-                <a href="#" class="btn-details">Ler mais</a>
+                <a href="https://www.omelete.com.br/games/cyberpunk-2-continuacao-de-cyberpunk-2077-ganha-titulo-e-entra-em-pre-producao" class="btn-details">Ler mais</a>
             </div>
         </div>
     `;
@@ -449,13 +449,13 @@ const maxPaginas = 10; // limite da API
 async function buscarNoticias(pagina = 1) {
   try {
     const response = await fetch(
-      `https://newsapi.org/v2/everything?q=jogos&pageSize=${noticiasPorPagina}&page=${pagina}&apiKey=cc9e5f5b76164b4cbf1388cebab1b323`
+      `/api/news?pageSize=${noticiasPorPagina}&page=${pagina}`
     );
 
     const data = await response.json();
 // Verifica se a resposta contém artigos
     if (!data.articles) {
-      console.error("API não retornou artigos");
+      console.error("API não retornou artigos", data);
       return;
     }
 
